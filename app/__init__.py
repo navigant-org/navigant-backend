@@ -19,6 +19,9 @@ def create_app(config_class=Config):
     # Enable CORS (Allow React Admin & Unity App to talk to us)
     CORS(app) 
 
+    # Import models so Flask-Migrate can detect them
+    from app import models
+
     # Register Blueprints (Routes)
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
