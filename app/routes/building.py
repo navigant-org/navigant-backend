@@ -115,3 +115,57 @@ def get_building_floors(building_id):
         return jsonify({"floors": floors_list, "count": len(floors_list)}), 200
     else:
         return jsonify({"message": "No floors found for this building"}), 404
+    
+@building_bp.route("/<int:building_id>/nodes", methods=["GET"])
+def get_building_nodes(building_id):
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    floors = Floor.query.filter_by(building_id=building_id).all()
+    floor_ids = [f.floor_id for f in floors]
+
+    from app.models import Node  # Import here to avoid circular imports
+    nodes = Node.query.filter(Node.floor_id.in_(floor_ids)).all()
+    if nodes:
+        nodes_list = [
+            {
+                "node_id": n.node_id,
+                "name": n.name,
+                "x_coordinate": n.x_coordinate,
+                "y_coordinate": n.y_coordinate,
+                "node_type": n.node_type,
+                "floor_id": n.floor_id,
+                "created_at": n.created_at.isoformat()
+            } for n in nodes
+        ]
+        return jsonify({"nodes": nodes_list, "count": len(nodes_list)}), 200
+    else:
+        return jsonify({"message": "No nodes found for this building"}), 404
+
+@building_bp.route("/<int:building_id>/edges", methods=["GET"])
+def get_building_edges(building_id):
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    floors = Floor.query.filter_by(building_id=building_id).all()
+    floor_ids = [f.floor_id for f in floors]
+
+    from app.models import Edge  # Import here to avoid circular imports
+    edges = Edge.query.filter(Edge.floor_id.in_(floor_ids)).all()
+    if edges:
+        edges_list = [
+            {
+                "edge_id": e.edge_id,
+                "start_node_id": e.start_node_id,
+                "end_node_id": e.end_node_id,
+                "distance": e.distance,
+                "floor_id": e.floor_id,
+                "is_walkable": e.is_walkable,
+                "created_at": e.created_at.isoformat()
+            } for e in edges
+        ]
+        return jsonify({"edges": edges_list, "count": len(edges_list)}), 200
+    else:
+        return jsonify({"message": "No edges found for this building"}), 404

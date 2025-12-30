@@ -99,3 +99,51 @@ def delete_floor(floor_id):
     db.session.commit()
 
     return jsonify({"message": "Floor deleted successfully"}), 200
+
+@floor_bp.route("/<int:floor_id>/nodes", methods=["GET"])
+def get_floor_nodes(floor_id):
+    floor = Floor.query.get(floor_id)
+    if not floor:
+        return jsonify({"error": "Floor not found"}), 404
+
+    from app.models import Node  # Import here to avoid circular imports
+    nodes = Node.query.filter_by(floor_id=floor_id).all()
+    if nodes:
+        nodes_list = [
+            {
+                "node_id": n.node_id,
+                "name": n.name,
+                "x_coordinate": n.x_coordinate,
+                "y_coordinate": n.y_coordinate,
+                "node_type": n.node_type,
+                "floor_id": n.floor_id,
+                "created_at": n.created_at.isoformat()
+            } for n in nodes
+        ]
+        return jsonify({"nodes": nodes_list, "count": len(nodes_list)}), 200
+    else:
+        return jsonify({"message": "No nodes found for this floor"}), 404
+    
+@floor_bp.route("/<int:floor_id>/edges", methods=["GET"])
+def get_floor_edges(floor_id):
+    floor = Floor.query.get(floor_id)
+    if not floor:
+        return jsonify({"error": "Floor not found"}), 404
+
+    from app.models import Edge  # Import here to avoid circular imports
+    edges = Edge.query.filter_by(floor_id=floor_id).all()
+    if edges:
+        edges_list = [
+            {
+                "edge_id": e.edge_id,
+                "start_node_id": e.start_node_id,
+                "end_node_id": e.end_node_id,
+                "distance": e.distance,
+                "is_walkable": e.is_walkable,
+                "floor_id": e.floor_id,
+                "created_at": e.created_at.isoformat()
+            } for e in edges
+        ]
+        return jsonify({"edges": edges_list, "count": len(edges_list)}), 200
+    else:
+        return jsonify({"message": "No edges found for this floor"}), 404

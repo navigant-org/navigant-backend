@@ -27,10 +27,14 @@ def create_app(config_class=Config):
     from app.routes.main import main_bp
     from app.routes.building import building_bp
     from app.routes.floor import floor_bp
+    from app.routes.node import node_bp
+    from app.routes.edge import edge_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(main_bp, url_prefix='/api')
     app.register_blueprint(building_bp, url_prefix='/api/buildings')
     app.register_blueprint(floor_bp, url_prefix='/api/floors')
+    app.register_blueprint(node_bp, url_prefix='/api/nodes')
+    app.register_blueprint(edge_bp, url_prefix='/api/edges')
 
     return app
