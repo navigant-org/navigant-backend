@@ -26,9 +26,11 @@ def create_app(config_class=Config):
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
     from app.routes.building import building_bp
+    from app.routes.floor import floor_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(main_bp, url_prefix='/api')
     app.register_blueprint(building_bp, url_prefix='/api/buildings')
+    app.register_blueprint(floor_bp, url_prefix='/api/floors')
 
     return app

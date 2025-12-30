@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app import db
-from app.models import Building
+from app.models import Building, Floor
 
 building_bp = Blueprint("building", __name__)
 
@@ -91,3 +91,27 @@ def delete_building(building_id):
     db.session.commit()
 
     return jsonify({"message": "Building deleted successfully"}), 200
+
+@building_bp.route("/<int:building_id>/floors", methods=["GET"])
+def get_building_floors(building_id):
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    floors = Floor.query.filter_by(building_id=building_id).all()
+    if floors:
+        floors_list = [
+            {
+                "floor_id": f.floor_id,
+                "building_id": f.building_id,
+                "floor_number": f.floor_number,
+                "map_img_url": f.map_img_url,
+                "scale": f.scale,
+                "origin_x": f.origin_x,
+                "origin_y": f.origin_y,
+                "created_at": f.created_at.isoformat()
+            } for f in floors
+        ]
+        return jsonify({"floors": floors_list, "count": len(floors_list)}), 200
+    else:
+        return jsonify({"message": "No floors found for this building"}), 404
