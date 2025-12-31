@@ -8,3 +8,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Default to SQLite for local dev, easy to switch to Postgres later
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///app.db'
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)

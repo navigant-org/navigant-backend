@@ -1,8 +1,8 @@
-"""Create tables
+"""Initial Migration
 
-Revision ID: d2cc79c1f9ce
+Revision ID: 227e73fc4e22
 Revises: 
-Create Date: 2025-12-30 10:23:46.425138
+Create Date: 2026-01-01 02:10:55.398321
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd2cc79c1f9ce'
+revision = '227e73fc4e22'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -108,9 +108,6 @@ def upgrade():
     op.create_table('mg_session',
     sa.Column('session_id', sa.String(length=100), nullable=False),
     sa.Column('node_id', sa.Integer(), nullable=False),
-    sa.Column('device_id', sa.String(length=100), nullable=False),
-    sa.Column('started_at', sa.DateTime(), nullable=True),
-    sa.Column('ended_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['node_id'], ['node.node_id'], ),
     sa.PrimaryKeyConstraint('session_id')
     )
