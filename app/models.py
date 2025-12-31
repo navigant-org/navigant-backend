@@ -54,9 +54,9 @@ class Mg_Raw_Reading(db.Model):
 class Mg_session(db.Model):
     session_id = db.Column(db.String(100), primary_key=True)
     node_id = db.Column(db.Integer, db.ForeignKey('node.node_id'), nullable=False)
-    device_id = db.Column(db.String(100), nullable=False)
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
-    ended_at = db.Column(db.DateTime, nullable=True)
+    # device_id = db.Column(db.String(100), nullable=False)
+    # started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # ended_at = db.Column(db.DateTime, nullable=True)
     
 class Mg_Fingerprint(db.Model):
     fingerprint_id = db.Column(db.Integer, primary_key=True, autoincrement=True)

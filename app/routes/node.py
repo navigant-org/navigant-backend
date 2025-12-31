@@ -93,3 +93,26 @@ def delete_node(node_id):
     db.session.commit()
 
     return jsonify({"message": "Node deleted successfully"}), 200
+
+@node_bp.route("/<int:node_id>/fingerprints", methods=["GET"])
+def get_node_fingerprints(node_id):
+    node = Node.query.get(node_id)
+    if not node:
+        return jsonify({"error": "Node not found"}), 404
+
+    from app.models import Mg_Fingerprint
+    fingerprints = Mg_Fingerprint.query.filter_by(node_id=node_id).all()
+    fingerprints_data = [{
+        "fingerprint_id": fp.fingerprint_id,
+        "mean_x": fp.mean_x,
+        "mean_y": fp.mean_y,
+        "mean_z": fp.mean_z,
+        "std_x": fp.std_x,  
+        "std_y": fp.std_y,
+        "std_z": fp.std_z
+    } for fp in fingerprints]
+    
+    return jsonify({
+        "node_id": node.node_id,
+        "fingerprints": fingerprints_data
+    }), 200

@@ -169,3 +169,47 @@ def get_building_edges(building_id):
         return jsonify({"edges": edges_list, "count": len(edges_list)}), 200
     else:
         return jsonify({"message": "No edges found for this building"}), 404
+    
+@building_bp.route("/<int:building_id>/graph", methods=["GET"])
+def get_building_graph(building_id):
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    floors = Floor.query.filter_by(building_id=building_id).all()
+    floor_ids = [f.floor_id for f in floors]
+
+    from app.models import Node, Edge  # Import here to avoid circular imports
+    nodes = Node.query.filter(Node.floor_id.in_(floor_ids)).all()
+    edges = Edge.query.filter(Edge.floor_id.in_(floor_ids)).all()
+
+    nodes_list = [
+        {
+            "node_id": n.node_id,
+            "name": n.name,
+            "x_coordinate": n.x_coordinate,
+            "y_coordinate": n.y_coordinate,
+            "node_type": n.node_type,
+            "floor_id": n.floor_id,
+            "created_at": n.created_at.isoformat()
+        } for n in nodes
+    ]
+
+    edges_list = [
+        {
+            "edge_id": e.edge_id,
+            "start_node_id": e.start_node_id,
+            "end_node_id": e.end_node_id,
+            "distance": e.distance,
+            "is_walkable": e.is_walkable,
+            "floor_id": e.floor_id,
+            "created_at": e.created_at.isoformat()
+        } for e in edges
+    ]
+
+    return jsonify({
+        "nodes": nodes_list,
+        "edges": edges_list,
+        "node_count": len(nodes_list),
+        "edge_count": len(edges_list)
+    }), 200
