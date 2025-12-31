@@ -4,6 +4,7 @@ from app.models import Mg_Fingerprint, Mg_Raw_Reading, Mg_session
 from app.ml import windowed_statistics, KNNModel
 import numpy as np
 from collections import Counter
+from app.utils import token_required
 
 main_bp = Blueprint("main", __name__)
 
@@ -48,7 +49,8 @@ def index():
 
 
 @main_bp.route("/fingerprint", methods=["POST"])
-def create_fingerprint():
+@token_required
+def create_fingerprint(current_user):
 	global cached_knn
 	data = request.get_json()
 	if not data or 'readings' not in data or 'node_id' not in data:
@@ -77,8 +79,8 @@ def create_fingerprint():
 			mag_y=reading['mag_y'],
 			mag_z=reading['mag_z']
 		)
+		db.session.add(mg_reading)
 
-	db.session.add(mg_reading)
 	db.session.commit()
 
 	windowed_readings = windowed_statistics(readings, window_size=10)
@@ -95,7 +97,7 @@ def create_fingerprint():
 			std_z=win[5],
 			sample_count=10
 		)
-	db.session.add(fingerprint)
+		db.session.add(fingerprint)
 	db.session.commit()
 
 	# Invalidate the cache since we added new data

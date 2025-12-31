@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import Building, Floor
+from app.utils import token_required
 
 building_bp = Blueprint("building", __name__)
 
@@ -21,7 +22,8 @@ def get_buildings():
         return jsonify({"message": "No buildings found"}), 404
     
 @building_bp.route("/", methods=["POST"])
-def create_building():
+@token_required
+def create_building(current_user):
     data = request.get_json()
     if not data or 'name' not in data or 'description' not in data:
         return {"error": "Name and description are required"}, 400
@@ -58,7 +60,8 @@ def get_building(building_id):
         return jsonify({"error": "Building not found"}), 404
     
 @building_bp.route("/<int:building_id>", methods=["PUT"])
-def update_building(building_id):
+@token_required
+def update_building(current_user, building_id):
     building = Building.query.get(building_id)
     if not building:
         return jsonify({"error": "Building not found"}), 404
@@ -82,7 +85,8 @@ def update_building(building_id):
     }), 200
 
 @building_bp.route("/<int:building_id>", methods=["DELETE"])
-def delete_building(building_id):
+@token_required
+def delete_building(current_user, building_id):
     building = Building.query.get(building_id)
     if not building:
         return jsonify({"error": "Building not found"}), 404

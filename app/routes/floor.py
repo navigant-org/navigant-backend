@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import Floor
+from app.utils import token_required
 
 floor_bp = Blueprint("floor", __name__)
 
 @floor_bp.route("/", methods=["POST"])
-def create_floor():
+@token_required
+def create_floor(current_user):
     data = request.get_json()
     if not data or 'building_id' not in data or 'floor_number' not in data or 'map_img_url' not in data:
         return {"error": "Building ID, floor number, and map image URL are required"}, 400
@@ -54,7 +56,8 @@ def get_floor(floor_id):
         return jsonify({"error": "Floor not found"}), 404
 
 @floor_bp.route("/<int:floor_id>", methods=["PUT"])
-def update_floor(floor_id):
+@token_required
+def update_floor(current_user, floor_id):
     floor = Floor.query.get(floor_id)
     if not floor:
         return jsonify({"error": "Floor not found"}), 404
@@ -90,7 +93,8 @@ def update_floor(floor_id):
     }), 200
     
 @floor_bp.route("/<int:floor_id>", methods=["DELETE"])
-def delete_floor(floor_id):
+@token_required
+def delete_floor(current_user, floor_id):
     floor = Floor.query.get(floor_id)
     if not floor:
         return jsonify({"error": "Floor not found"}), 404

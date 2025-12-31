@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import Edge
+from app.utils import token_required
 
 edge_bp = Blueprint("edge", __name__)
 
 @edge_bp.route("/", methods=["POST"])
-def create_edge():
+@token_required
+def create_edge(current_user):
     data = request.get_json()
     if not data or 'start_node_id' not in data or 'end_node_id' not in data or 'distance' not in data or 'floor_id' not in data:
         return {"error": "Please provide all required fields"}, 400
@@ -47,7 +49,8 @@ def get_edge(edge_id):
         return jsonify({"error": "Edge not found"}), 404
     
 @edge_bp.route("/<int:edge_id>", methods=["PUT"])
-def update_edge(edge_id):
+@token_required
+def update_edge(current_user, edge_id):
     edge = Edge.query.get(edge_id)
     if not edge:
         return jsonify({"error": "Edge not found"}), 404
@@ -77,7 +80,8 @@ def update_edge(edge_id):
     }), 200
     
 @edge_bp.route("/<int:edge_id>", methods=["DELETE"])
-def delete_edge(edge_id):
+@token_required
+def delete_edge(current_user, edge_id):
     edge = Edge.query.get(edge_id)
     if not edge:
         return jsonify({"error": "Edge not found"}), 404

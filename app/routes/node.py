@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import Node
+from app.utils import token_required
 
 node_bp = Blueprint("node", __name__)
 
 @node_bp.route("/", methods=["POST"])
-def create_node():
+@token_required
+def create_node(current_user):
     data = request.get_json()
     if not data or 'name' not in data or 'floor_id' not in data or 'x_coordinate' not in data or 'y_coordinate' not in data or 'node_type' not in data:
         return {"error": "Please provide all required fields"}, 400
@@ -51,7 +53,8 @@ def get_node(node_id):
         return jsonify({"error": "Node not found"}), 404
 
 @node_bp.route("/<int:node_id>", methods=["PUT"])
-def update_node(node_id):
+@token_required
+def update_node(current_user, node_id):
     node = Node.query.get(node_id)
     if not node:
         return jsonify({"error": "Node not found"}), 404
@@ -84,7 +87,8 @@ def update_node(node_id):
     }), 200
     
 @node_bp.route("/<int:node_id>", methods=["DELETE"])
-def delete_node(node_id):
+@token_required
+def delete_node(current_user, node_id):
     node = Node.query.get(node_id)
     if not node:
         return jsonify({"error": "Node not found"}), 404
