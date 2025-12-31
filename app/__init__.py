@@ -17,7 +17,7 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     
     # Enable CORS (Allow React Admin & Unity App to talk to us)
-    CORS(app) 
+    CORS(app, resources={r"/*": {"origins": "*"}}, allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]) 
 
     # Import models so Flask-Migrate can detect them
     from app import models
