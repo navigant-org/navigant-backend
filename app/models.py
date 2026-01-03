@@ -31,10 +31,10 @@ class Floor(db.Model):
     floor_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     building_id = db.Column(db.Integer, db.ForeignKey('building.building_id'), nullable=False)
     floor_number = db.Column(db.Integer, nullable=False)
-    map_img_url = db.Column(db.String(255), nullable=True)
-    scale = db.Column(db.Float, nullable=False)
-    origin_x = db.Column(db.Float, nullable=False)
-    origin_y = db.Column(db.Float, nullable=False)
+    map_img_url = db.Column(db.String(500), nullable=True)
+    scale = db.Column(db.Float, nullable=False, default=1.0)
+    origin_x = db.Column(db.Float, nullable=False, default=0.0)
+    origin_y = db.Column(db.Float, nullable=False, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
 class Building(db.Model):

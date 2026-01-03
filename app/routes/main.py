@@ -49,7 +49,7 @@ def index():
 
 
 @main_bp.route("/fingerprint", methods=["POST"])
-@token_required
+# @token_required
 def create_fingerprint(current_user):
 	global cached_knn
 	data = request.get_json()
