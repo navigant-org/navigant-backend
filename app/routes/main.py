@@ -131,4 +131,4 @@ def localize():
 	predictions = knn.predict(windowed_readings)
 	predicted_node = Counter(predictions).most_common(1)[0][0]
  
-	return jsonify({"predicted_node_id": predicted_node}), 200
+	return jsonify({"predicted_node_id": int(predicted_node)}), 200
