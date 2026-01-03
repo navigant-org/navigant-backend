@@ -83,7 +83,9 @@ def create_fingerprint():
 
 	db.session.commit()
 
-	windowed_readings = windowed_statistics(readings, window_size=10)
+	# Convert readings to a format suitable for windowed_statistics (list of lists)
+	readings_matrix = [[r['mag_x'], r['mag_y'], r['mag_z']] for r in readings]
+	windowed_readings = windowed_statistics(readings_matrix, window_size=10)
 	if windowed_readings.size == 0:
 		return {"error": "Not enough data to form a complete window"}, 400
 	for win in windowed_readings:
