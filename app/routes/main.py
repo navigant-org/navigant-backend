@@ -50,7 +50,7 @@ def index():
 
 @main_bp.route("/fingerprint", methods=["POST"])
 # @token_required
-def create_fingerprint(current_user):
+def create_fingerprint():
 	global cached_knn
 	data = request.get_json()
 	if not data or 'readings' not in data or 'node_id' not in data:
