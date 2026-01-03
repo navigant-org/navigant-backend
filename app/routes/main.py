@@ -91,12 +91,12 @@ def create_fingerprint():
 	for win in windowed_readings:
 		fingerprint = Mg_Fingerprint(
 			node_id=data['node_id'],
-			mean_x=win[0],
-			mean_y=win[1],
-			mean_z=win[2],
-			std_x=win[3],
-			std_y=win[4],
-			std_z=win[5],
+			mean_x=float(win[0]),
+			mean_y=float(win[1]),
+			mean_z=float(win[2]),
+			std_x=float(win[3]),
+			std_y=float(win[4]),
+			std_z=float(win[5]),
 			sample_count=10
 		)
 		db.session.add(fingerprint)
