@@ -131,4 +131,17 @@ def localize():
 	predictions = knn.predict(windowed_readings)
 	predicted_node = Counter(predictions).most_common(1)[0][0]
  
-	return jsonify({"predicted_node_id": int(predicted_node)}), 200
+	from app.models import Node
+ 
+	node = Node.query.get(predicted_node)
+	if not node:
+		return {"error": "Predicted node not found in database"}, 400
+
+	return jsonify({
+		"predicted_node_id": node.node_id,
+		"name": node.name,
+		"x_coord": node.x_coord,
+		"y_coord": node.y_coord,
+		"floor_id": node.floor_id,
+		"node_type": node.node_type
+	}), 200
