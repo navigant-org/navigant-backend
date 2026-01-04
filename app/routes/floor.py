@@ -190,5 +190,6 @@ def get_floor_graph(floor_id):
         "nodes": nodes_list,
         "edges": edges_list,
         "node_count": len(nodes_list),
-        "edge_count": len(edges_list)
+        "edge_count": len(edges_list),
+        "scale": floor.scale,
     }), 200
