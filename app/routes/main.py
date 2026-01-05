@@ -140,8 +140,8 @@ def localize():
 	return jsonify({
 		"predicted_node_id": node.node_id,
 		"name": node.name,
-		"x_coord": node.x_coord,
-		"y_coord": node.y_coord,
+		"x_coord": node.x_coordinate,
+		"y_coord": node.y_coordinate,
 		"floor_id": node.floor_id,
 		"node_type": node.node_type
 	}), 200
