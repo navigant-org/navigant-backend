@@ -2,7 +2,7 @@
 
 Minimal Flask backend with SQLAlchemy, Flask-Migrate, and CORS.
 
-## Setup
+## Setup 
 
 ```bash
 python -m venv venv
