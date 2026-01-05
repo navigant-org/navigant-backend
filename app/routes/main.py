@@ -129,7 +129,7 @@ def localize():
 	if knn is None:
 		return {"error": "No fingerprints available for localization"}, 400
 	predictions = knn.predict(windowed_readings)
-	predicted_node = Counter(predictions).most_common(1)[0][0]
+	predicted_node = int(Counter(predictions).most_common(1)[0][0])
  
 	from app.models import Node
  
