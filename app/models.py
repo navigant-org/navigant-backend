@@ -16,6 +16,7 @@ class Node(db.Model):
     y_coordinate = db.Column(db.Float, nullable=False)
     node_type = db.Column(db.String(50), nullable=False)
     floor_id = db.Column(db.Integer, db.ForeignKey('floor.floor_id'), nullable=False)
+    connecter_id = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
 class Edge(db.Model):
@@ -25,6 +26,7 @@ class Edge(db.Model):
     distance = db.Column(db.Float, nullable=False)
     floor_id = db.Column(db.Integer, db.ForeignKey('floor.floor_id'), nullable=False)
     is_walkable = db.Column(db.Boolean, default=True)
+    edge_type = db.Column(db.String(50), nullable=False, default='horizontal')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
 class Floor(db.Model):

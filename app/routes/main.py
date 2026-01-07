@@ -145,3 +145,35 @@ def localize():
 		"floor_id": node.floor_id,
 		"node_type": node.node_type
 	}), 200
+ 
+@main_bp.route("/path", methods=["GET"])
+def get_path():
+	data = request.get_json()
+	if not data or 'start_node_id' not in data or 'end_node_id' not in data or 'floor_id' not in data:
+		return {"error": "start_node_id, end_node_id, and floor_id are required"}, 400
+
+	from app.pathfinding import findpath, build_graph
+	from app.models import Node
+ 
+	graph = build_graph(data['floor_id'])
+	distance, path = findpath(graph, data['start_node_id'], data['end_node_id'])
+ 
+	if distance == float('inf'):
+		return jsonify({"message": "No path found between the specified nodes"}), 404
+
+	path_details = [
+		{
+			"node_id": node_id,
+			"name": Node.query.get(node_id).name,
+			"x_coordinate": Node.query.get(node_id).x_coordinate,
+			"y_coordinate": Node.query.get(node_id).y_coordinate,
+			"node_type": Node.query.get(node_id).node_type,
+			"floor_id": Node.query.get(node_id).floor_id
+		} for node_id in path
+	]
+ 
+	return jsonify({
+		"total_distance": distance,
+		"path": path,
+		"path_details": path_details
+	})
