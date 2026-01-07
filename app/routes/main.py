@@ -156,7 +156,7 @@ def get_path():
 	from app.models import Node
  
 	graph = build_graph(data['floor_id'])
-	distance, path = findpath(graph, data['start_node_id'], data['end_node_id'])
+	distance, path = findpath(data['start_node_id'], data['end_node_id'], graph)
  
 	if distance == float('inf'):
 		return jsonify({"message": "No path found between the specified nodes"}), 404
