@@ -111,6 +111,46 @@ Base URL: `http://127.0.0.1:5000/api`
   }
   ```
 
+### Get Shortest Path
+
+- **Endpoint**: `/path`
+- **Method**: `GET`
+- **Description**: Computes the shortest path between two nodes on a given floor using the internal graph.
+- **Request Body**:
+  ```json
+  {
+    "start_node_id": 1,
+    "end_node_id": 10,
+    "floor_id": 2
+  }
+  ```
+- **Response (200)**:
+
+  ```json
+  {
+    "total_distance": 42.3,
+    "path": [1, 3, 7, 10],
+    "path_details": [
+      {
+        "node_id": 1,
+        "name": "Room 101",
+        "x_coordinate": 10.0,
+        "y_coordinate": 20.0,
+        "node_type": "room",
+        "floor_id": 2
+      }
+    ]
+  }
+  ```
+
+  - **Response (404)**:
+
+  ```json
+  {
+    "message": "No path found between the specified nodes"
+  }
+  ```
+
 ---
 
 ## Buildings
@@ -217,6 +257,24 @@ Base URL: `http://127.0.0.1:5000/api`
 - **Endpoint**: `/floors/<id>`
 - **Method**: `DELETE`
 - **Headers**: `Authorization: Bearer <token>`
+
+### Get Floor Nodes
+
+- **Endpoint**: `/floors/<id>/nodes`
+- **Method**: `GET`
+- **Description**: Returns all nodes that belong to the specified floor.
+
+### Get Floor Edges
+
+- **Endpoint**: `/floors/<id>/edges`
+- **Method**: `GET`
+- **Description**: Returns all edges that belong to the specified floor.
+
+### Get Floor Graph
+
+- **Endpoint**: `/floors/<id>/graph`
+- **Method**: `GET`
+- **Description**: Returns the graph for a floor, including nodes, edges, and scale information.
 
 ---
 
