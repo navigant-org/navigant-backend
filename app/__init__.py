@@ -15,6 +15,9 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     DATABASE_URL = os.environ.get("DATABASE_URL")
+    if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL missing - refusing to start with SQLite")
 
