@@ -20,6 +20,8 @@ def create_app(config_class=Config):
 
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["ENV"] = "production"
+    app.config["DEBUG"] = False
 
     # Initialize Plugins
     db.init_app(app)
