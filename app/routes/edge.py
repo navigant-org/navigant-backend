@@ -16,7 +16,8 @@ def create_edge(current_user):
         start_node_id=data['start_node_id'],
         end_node_id=data['end_node_id'],
         distance=data['distance'],
-        floor_id=data['floor_id']
+        floor_id=data['floor_id'],
+        edge_type=data.get('edge_type', 'horizontal')
     )
     
     db.session.add(new_edge)
@@ -29,6 +30,7 @@ def create_edge(current_user):
             "end_node_id": new_edge.end_node_id,
             "distance": new_edge.distance,
             "floor_id": new_edge.floor_id,
+            "edge_type": new_edge.edge_type,
             "created_at": new_edge.created_at.isoformat()
         }
     }), 201
@@ -43,6 +45,7 @@ def get_edge(edge_id):
             "end_node_id": edge.end_node_id,
             "distance": edge.distance,
             "floor_id": edge.floor_id,
+            "edge_type": edge.edge_type,
             "created_at": edge.created_at.isoformat()
         }), 200
     else:
@@ -64,7 +67,8 @@ def update_edge(current_user, edge_id):
         edge.distance = data['distance']
     if 'floor_id' in data:
         edge.floor_id = data['floor_id']
-
+    if 'edge_type' in data:
+        edge.edge_type = data['edge_type']
     db.session.commit()
 
     return jsonify({
@@ -75,6 +79,7 @@ def update_edge(current_user, edge_id):
             "end_node_id": edge.end_node_id,
             "distance": edge.distance,
             "floor_id": edge.floor_id,
+            "edge_type": edge.edge_type,
             "created_at": edge.created_at.isoformat()
         }
     }), 200
