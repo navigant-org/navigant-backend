@@ -8,16 +8,25 @@ from app.utils import token_required
 
 main_bp = Blueprint("main", __name__)
 
-# Global variable to cache the trained model
-cached_knn = None
+# Global variable to cache trained models per building
+# { building_id: KNNModel }
+model_cache = {}
 
-def get_trained_model():
-    global cached_knn
-    if cached_knn is not None:
-        return cached_knn
+def get_trained_model(building_id=None):
+    global model_cache
+    if building_id in model_cache:
+        return model_cache[building_id]
 
-    # Load fingerprints from DB
-    fingerprints = Mg_Fingerprint.query.all()
+    from app.models import Node, Floor
+
+    query = Mg_Fingerprint.query
+    if building_id:
+        # Filter fingerprints by building
+        query = query.join(Node, Mg_Fingerprint.node_id == Node.node_id)\
+                     .join(Floor, Node.floor_id == Floor.floor_id)\
+                     .filter(Floor.building_id == building_id)
+
+    fingerprints = query.all()
     if not fingerprints:
         return None
 
@@ -35,8 +44,8 @@ def get_trained_model():
     knn = KNNModel(k=3)
     knn.fit(X_train, y_train)
     
-    cached_knn = knn
-    return cached_knn
+    model_cache[building_id] = knn
+    return knn
 
 
 @main_bp.route("/", methods=["GET"])
@@ -51,7 +60,7 @@ def index():
 @main_bp.route("/fingerprint", methods=["POST"])
 # @token_required
 def create_fingerprint():
-	global cached_knn
+	global model_cache
 	data = request.get_json()
 	if not data or 'readings' not in data or 'node_id' not in data:
 		return {"error": "Readings data and node_id are required"}, 400
@@ -102,8 +111,17 @@ def create_fingerprint():
 		db.session.add(fingerprint)
 	db.session.commit()
 
-	# Invalidate the cache since we added new data
-	cached_knn = None
+	# Invalidate relevant caches
+	from app.models import Node, Floor
+	node = Node.query.get(data['node_id'])
+	if node:
+		floor = Floor.query.get(node.floor_id)
+		if floor:
+			# Invalidate both specific building and global cache
+			model_cache.pop(floor.building_id, None)
+			model_cache.pop(None, None)
+	else:
+		model_cache.clear()
 
 	return jsonify({"message": "Fingerprint created successfully"}), 201
 
@@ -125,7 +143,8 @@ def localize():
 		return {"error": "Not enough data to form a complete window"}, 400
 
 	# Get trained model (cached if available)
-	knn = get_trained_model()
+	building_id = data.get('building_id')
+	knn = get_trained_model(building_id)
 	if knn is None:
 		return {"error": "No fingerprints available for localization"}, 400
 	predictions = knn.predict(windowed_readings)
@@ -149,27 +168,45 @@ def localize():
 @main_bp.route("/path", methods=["GET"])
 def get_path():
 	data = request.get_json()
-	if not data or 'start_node_id' not in data or 'end_node_id' not in data or 'floor_id' not in data:
-		return {"error": "start_node_id, end_node_id, and floor_id are required"}, 400
+	if not data or 'start_node_id' not in data or 'end_node_id' not in data:
+		return {"error": "start_node_id and end_node_id are required"}, 400
 
 	from app.pathfinding import findpath, build_graph
-	from app.models import Node
+	from app.models import Node, Floor
  
-	graph = build_graph(data['floor_id'])
+	building_id = data.get('building_id')
+	if not building_id:
+		start_node = Node.query.get(data['start_node_id'])
+		if not start_node:
+			return {"error": "Start node not found"}, 404
+		floor = Floor.query.get(start_node.floor_id)
+		if not floor:
+			return {"error": "Floor not found for start node"}, 404
+		building_id = floor.building_id
+
+	try:
+		graph = build_graph(building_id)
+	except ValueError as e:
+		return {"error": str(e)}, 400
+
 	distance, path = findpath(data['start_node_id'], data['end_node_id'], graph)
  
 	if distance == float('inf'):
 		return jsonify({"message": "No path found between the specified nodes"}), 404
 
+	# Optimize: fetch all nodes in path in one query
+	nodes_in_path = Node.query.filter(Node.node_id.in_(path)).all()
+	node_map = {n.node_id: n for n in nodes_in_path}
+	
 	path_details = [
 		{
 			"node_id": node_id,
-			"name": Node.query.get(node_id).name,
-			"x_coordinate": Node.query.get(node_id).x_coordinate,
-			"y_coordinate": Node.query.get(node_id).y_coordinate,
-			"node_type": Node.query.get(node_id).node_type,
-			"floor_id": Node.query.get(node_id).floor_id
-		} for node_id in path
+			"name": node_map[node_id].name,
+			"x_coordinate": node_map[node_id].x_coordinate,
+			"y_coordinate": node_map[node_id].y_coordinate,
+			"node_type": node_map[node_id].node_type,
+			"floor_id": node_map[node_id].floor_id
+		} for node_id in path if node_id in node_map
 	]
  
 	return jsonify({
