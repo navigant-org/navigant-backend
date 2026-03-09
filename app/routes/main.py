@@ -126,8 +126,8 @@ def create_fingerprint():
 	return jsonify({"message": "Fingerprint created successfully"}), 201
 
 @main_bp.route("/delete_all_fingerprints", methods=["DELETE"])
-@token_required
-def delete_all_fingerprints(current_user):
+#@token_required
+def delete_all_fingerprints():
 	try:
 		Mg_Raw_Reading.query.delete()
 		Mg_session.query.delete()
