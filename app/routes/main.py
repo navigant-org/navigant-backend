@@ -125,6 +125,21 @@ def create_fingerprint():
 
 	return jsonify({"message": "Fingerprint created successfully"}), 201
 
+@main_bp.route("/delete_all_fingerprints", methods=["DELETE"])
+@token_required
+def delete_all_fingerprints(current_user):
+	try:
+		Mg_Raw_Reading.query.delete()
+		Mg_session.query.delete()
+		Mg_Fingerprint.query.delete()
+		
+		db.session.commit()
+		
+		return {"message": "All magnetometer data deleted successfully"}, 200
+	
+	except Exception as e:
+		db.session.rollback()
+		return {"error": str(e)}, 500
 
 @main_bp.route("/localize", methods=["POST"])
 def localize():
